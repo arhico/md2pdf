@@ -27,16 +27,16 @@ npm run check
 
 ## Source Layout
 
-| Path | Purpose |
-| --- | --- |
-| `src/md2pdf/cli.py` | CLI argument parsing |
-| `src/md2pdf/__main__.py` | `python -m md2pdf` entry point |
-| `src/md2pdf/__init__.py` | Public package facade |
-| `src/md2pdf/config.py` | Shared defaults, version, fonts and runtime flags |
-| `src/md2pdf/markdown.py` | Markdown cleanup, tables and block helpers |
-| `src/md2pdf/mermaid.py` | Mermaid CLI integration and built-in renderers |
-| `src/md2pdf/pdf.py` | ReportLab PDF generation |
-| `src/md2pdf/core.py` | Compatibility facade for older imports |
-| `tests/test_md2pdf.py` | Unit and smoke tests |
+| Path                     | Purpose                                           |
+| --------------------------| ---------------------------------------------------|
+| `src/md2pdf/cli.py`      | CLI argument parsing                              |
+| `src/md2pdf/__main__.py` | `python -m md2pdf` entry point                    |
+| `src/md2pdf/__init__.py` | Public package facade                             |
+| `src/md2pdf/config.py`   | Shared defaults, version, fonts and runtime flags |
+| `src/md2pdf/markdown.py` | Markdown cleanup, tables and block helpers        |
+| `src/md2pdf/mermaid.py`  | Mermaid CLI integration and built-in renderers    |
+| `src/md2pdf/pdf.py`      | ReportLab PDF generation                          |
+| `src/md2pdf/core.py`     | Compatibility facade for older imports            |
+| `tests/test_md2pdf.py`   | Unit and smoke tests                              |
 
 Keep module boundaries simple: `config` has no package imports, `markdown` owns Markdown helpers, `mermaid` owns diagram rendering, and `pdf` assembles the document.

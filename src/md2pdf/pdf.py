@@ -99,6 +99,36 @@ def flush_code(
     code.clear()
 
 
+def flush_blockquote(story: list, blockquote: list[str], styles: dict, available_width: float) -> None:
+    if not blockquote:
+        return
+    text = " ".join(part.strip() for part in blockquote if part.strip())
+    if text:
+        block = Table(
+            [["", Paragraph(text, styles["blockquote"])]],
+            colWidths=[0.05 * PARAGRAPH_INDENT, available_width - 0.05 * PARAGRAPH_INDENT],
+            hAlign="LEFT",
+        )
+        
+        block.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F0F0F0")),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.darkgray),
+                    ("LEFTLINEWIDTH", (0, 0), (0, -1), 4.0),
+                    ("LEFTPADDING", (0, 0), (-1,-1), 12),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 12),
+                    ("TOPPADDING", (0, 0), (-1, -1), 8),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ]
+            )
+        )
+        story.append(KeepTogether([block]))
+        story.append(Spacer(2, 2 * mm))
+    blockquote.clear()
+
+
+
 def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = None) -> None:
     rl_config.invariant = 1
     options = options or PdfOptions()
@@ -217,12 +247,27 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
             textColor=colors.black,
             backColor=colors.white,
         ),
+        "blockquote": ParagraphStyle(
+            "BlockquoteRu",
+            parent=base["BodyText"],
+            fontName=regular,
+            fontSize=options.font_size,
+            leading=leading,
+            alignment=TA_LEFT,
+            leftIndent=PARAGRAPH_INDENT * 0.2,
+            firstLineIndent=0,
+            spaceAfter=0,
+            textColor=colors.HexColor("#555555"),
+            # backColor=colors.aliceblue,
+
+        ),
     }
 
     story: list = []
     paragraph: list[str] = []
     bullets: list[str] = []
     code: list[str] = []
+    blockquote: list[str] = []
     table: list[list[str]] = []
     in_code = False
     code_lang = ""
@@ -269,10 +314,12 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
         if not line.strip():
             flush_paragraph(story, paragraph, styles["body"])
             flush_bullets(story, bullets, styles, available_width)
+            flush_blockquote(story, blockquote, styles, available_width)
             if table:
                 add_table(story, table, styles, available_width)
                 table.clear()
             continue
+
 
         heading = re.match(r"^(#{1,6})\s+(.+)$", line)
         if heading:
@@ -313,15 +360,41 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
             flush_bullets(story, bullets, styles, available_width)
             table.append(split_table_row(line))
             continue
+        
+        # Horizontal rule
+        if re.match(r"^\s*-{3,}\s*$", line):
+            flush_paragraph(story, paragraph, styles["body"])
+            flush_bullets(story, bullets, styles, available_width)
+            flush_blockquote(story, blockquote, styles, available_width)
+            if table:
+                add_table(story, table, styles, available_width)
+                table.clear()
+            rule = Table([[""]],colWidths=[available_width], rowHeights=0.2)
+            rule.setStyle(TableStyle([("BOX", (0, 0), (0, 0), 1, colors.HexColor("#45474B"))]))
+            story.append(rule)
+            story.append(Spacer(1, 1))
+            continue
+
+        # Blockquote
+        if line.lstrip().startswith(">"):
+            flush_paragraph(story, paragraph, styles["body"])
+            flush_bullets(story, bullets, styles, available_width)
+            if table:
+                add_table(story, table, styles, available_width)
+                table.clear()
+            blockquote.append(line.lstrip('>'))
+            continue
 
         if table:
             add_table(story, table, styles, available_width)
             table.clear()
         flush_bullets(story, bullets, styles, available_width)
+        flush_blockquote(story, blockquote, styles, available_width)
         paragraph.append(line)
 
     flush_paragraph(story, paragraph, styles["body"])
     flush_bullets(story, bullets, styles, available_width)
+    flush_blockquote(story, blockquote, styles, available_width)
     if table:
         add_table(story, table, styles, available_width)
     if code:
