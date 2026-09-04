@@ -11,15 +11,15 @@ The project is intentionally small. It is useful for course work, project report
 
 ## Features
 
-| Feature | Behavior | Notes |
-| --- | --- | --- |
-| Text | Serif font, 14 pt, readable left-aligned paragraphs | First-line indent is 1.25 cm |
-| Headings | Bold serif headings | The first H1 is centered as a title |
-| Lists | Dash marker with a fixed left indent | Supports flat `- ` lists |
-| Tables | Plain grid with repeated header rows | Best for simple pipe tables |
-| Code blocks | Monospace-style framed block using the document font | Long lines are preserved |
-| Mermaid | Renders diagrams to PNG before inserting into PDF | Built-in renderer covers common diagram types |
-| Pages | A4 portrait with 30/10/20/20 mm margins | Page number is centered in the footer |
+| Feature     | Behavior                                             | Notes                                         |
+| -------------| ------------------------------------------------------| -----------------------------------------------|
+| Text        | Serif font, 14 pt, readable left-aligned paragraphs  | First-line indent is 1.25 cm                  |
+| Headings    | Bold serif headings                                  | The first H1 is centered as a title           |
+| Lists       | Dash marker with a fixed left indent                 | Supports flat `- ` lists                      |
+| Tables      | Plain grid with repeated header rows                 | Best for simple pipe tables                   |
+| Code blocks | Monospace-style framed block using the document font | Long lines are preserved                      |
+| Mermaid     | Renders diagrams to PNG before inserting into PDF    | Built-in renderer covers common diagram types |
+| Pages       | A4 portrait with 30/10/20/20 mm margins              | Page number is centered in the footer         |
 
 ## Requirements
 
