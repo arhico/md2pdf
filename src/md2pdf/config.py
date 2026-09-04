@@ -22,6 +22,7 @@ FONT_CANDIDATES = {
         "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",
         "/usr/share/fonts/truetype/liberation2/LiberationSerif-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
+        "/usr/share/fonts/liberation/LiberationSerif-Regular.ttf"
     ],
     "bold": [
         "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
@@ -30,6 +31,7 @@ FONT_CANDIDATES = {
         "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
         "/usr/share/fonts/truetype/liberation2/LiberationSerif-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
+        "/usr/share/fonts/liberation/LiberationSerif-Bold.ttf"
     ],
 }
 MERMAID_DIR = ROOT / ".md2pdf" / "mermaid"
