@@ -21,6 +21,7 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
+    HRFlowable,
 )
 
 from .config import PARAGRAPH_INDENT, register_fonts
@@ -132,7 +133,7 @@ def flush_blockquote(story: list, blockquote: list[str], styles: dict, available
 def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = None) -> None:
     rl_config.invariant = 1
     options = options or PdfOptions()
-    regular, bold = register_fonts()
+    regular, bold = register_fonts('utf-8')
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     page_width, page_height = A4
@@ -348,6 +349,7 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
                 add_table(story, table, styles, available_width)
                 table.clear()
             bullets.append(line.lstrip()[2:])
+            # bullets.append(line)
             continue
 
         if line.strip().startswith("|") and "|" in line.strip()[1:]:
@@ -360,19 +362,27 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
             flush_bullets(story, bullets, styles, available_width)
             table.append(split_table_row(line))
             continue
-        
+
         # Horizontal rule
         if re.match(r"^\s*-{3,}\s*$", line):
             flush_paragraph(story, paragraph, styles["body"])
             flush_bullets(story, bullets, styles, available_width)
             flush_blockquote(story, blockquote, styles, available_width)
+
             if table:
                 add_table(story, table, styles, available_width)
                 table.clear()
-            rule = Table([[""]],colWidths=[available_width], rowHeights=0.2)
-            rule.setStyle(TableStyle([("BOX", (0, 0), (0, 0), 1, colors.HexColor("#45474B"))]))
-            story.append(rule)
-            story.append(Spacer(1, 1))
+
+            story.append(
+                HRFlowable(
+                    width = available_width,
+                    thickness = 1,
+                    color = colors.HexColor("#45474B"),
+                    spaceBefore = 8 * mm,   # padding above the line
+                    spaceAfter = 8 * mm,    # padding below the line
+                    hAlign = "LEFT",
+                )
+            )
             continue
 
         # Blockquote
