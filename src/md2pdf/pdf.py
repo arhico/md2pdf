@@ -129,6 +129,34 @@ def flush_blockquote(story: list, blockquote: list[str], styles: dict, available
     blockquote.clear()
 
 
+def flush_ordered(
+    story: list,
+    ordered: list[tuple[int, str, str, str]],
+    styles: dict,
+) -> None:
+    if not ordered:
+        return
+
+    list_indent = 12  # points added for every nesting level
+
+    for level, number, delimiter, text in ordered:
+        style = ParagraphStyle(
+            f"OrderedListLevel{level}",
+            parent=styles["list_body"],
+            leftIndent=styles["list_body"].leftIndent + level * list_indent,
+            firstLineIndent=0,
+        )
+
+        story.append(
+            Paragraph(
+                f"{number}{delimiter} {text}",
+                style,
+            )
+        )
+
+    ordered.clear()
+
+
 
 def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = None) -> None:
     rl_config.invariant = 1
@@ -266,7 +294,8 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
 
     story: list = []
     paragraph: list[str] = []
-    bullets: list[str] = []
+    bullets: list[tuple[int, str]] = []
+    ordered: list[tuple[int, str, str, str]] = []
     code: list[str] = []
     blockquote: list[str] = []
     table: list[list[str]] = []
@@ -299,6 +328,7 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
             else:
                 flush_paragraph(story, paragraph, styles["body"])
                 flush_bullets(story, bullets, styles, available_width)
+                flush_ordered(story, ordered, styles)
                 if table:
                     add_table(story, table, styles, available_width)
                     table.clear()
@@ -315,17 +345,20 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
         if not line.strip():
             flush_paragraph(story, paragraph, styles["body"])
             flush_bullets(story, bullets, styles, available_width)
+            flush_ordered(story, ordered, styles)
             flush_blockquote(story, blockquote, styles, available_width)
+
             if table:
                 add_table(story, table, styles, available_width)
                 table.clear()
-            continue
 
+            continue
 
         heading = re.match(r"^(#{1,6})\s+(.+)$", line)
         if heading:
             flush_paragraph(story, paragraph, styles["body"])
             flush_bullets(story, bullets, styles, available_width)
+            flush_ordered(story, ordered, styles)
             if table:
                 add_table(story, table, styles, available_width)
                 table.clear()
@@ -343,14 +376,56 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
                 story.append(Paragraph(text, styles["h3"]))
             continue
 
-        if line.lstrip().startswith("- "):
+
+        unordered_item = re.match(
+            r"^([ \t]*)([-+*])\s+(.+)$",
+            line,
+        )
+
+        if unordered_item:
+            indentation, marker, text = unordered_item.groups()
+
+            # Treat tabs as four spaces.
+            indentation_width = len(indentation.expandtabs(4))
+
+            # Two spaces represent one nesting level.
+            level = indentation_width // 2
+
             flush_paragraph(story, paragraph, styles["body"])
+            flush_ordered(story, ordered, styles)
+
             if table:
                 add_table(story, table, styles, available_width)
                 table.clear()
-            bullets.append(line.lstrip()[2:])
-            # bullets.append(line)
+
+            bullets.append((level, text))
             continue
+
+        
+        ordered_item = re.match(
+            r"^([ \t]*)(\d+)([.)])\s+(.+)$",
+            line,
+        )
+
+        if ordered_item:
+            indentation, number, delimiter, text = ordered_item.groups()
+
+            # Treat tabs as four spaces.
+            indentation_width = len(indentation.expandtabs(4))
+
+            # Two spaces per nesting level.
+            level = indentation_width // 2
+
+            flush_paragraph(story, paragraph, styles["body"])
+            flush_bullets(story, bullets, styles, available_width)
+
+            if table:
+                add_table(story, table, styles, available_width)
+                table.clear()
+
+            ordered.append((level, number, delimiter, text))
+            continue
+
 
         if line.strip().startswith("|") and "|" in line.strip()[1:]:
             if is_table_divider(line):
@@ -360,6 +435,7 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
                 continue
             flush_paragraph(story, paragraph, styles["body"])
             flush_bullets(story, bullets, styles, available_width)
+            flush_ordered(story, ordered, styles)
             table.append(split_table_row(line))
             continue
 
@@ -367,6 +443,7 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
         if re.match(r"^\s*-{3,}\s*$", line):
             flush_paragraph(story, paragraph, styles["body"])
             flush_bullets(story, bullets, styles, available_width)
+            flush_ordered(story, ordered, styles)
             flush_blockquote(story, blockquote, styles, available_width)
 
             if table:
@@ -389,6 +466,7 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
         if line.lstrip().startswith(">"):
             flush_paragraph(story, paragraph, styles["body"])
             flush_bullets(story, bullets, styles, available_width)
+            flush_ordered(story, ordered, styles)
             if table:
                 add_table(story, table, styles, available_width)
                 table.clear()
@@ -400,11 +478,14 @@ def build_pdf(input_path: Path, output_path: Path, options: PdfOptions | None = 
             table.clear()
         flush_bullets(story, bullets, styles, available_width)
         flush_blockquote(story, blockquote, styles, available_width)
+        flush_ordered(story, ordered, styles)
         paragraph.append(line)
 
     flush_paragraph(story, paragraph, styles["body"])
     flush_bullets(story, bullets, styles, available_width)
+    flush_ordered(story, ordered, styles)
     flush_blockquote(story, blockquote, styles, available_width)
+
     if table:
         add_table(story, table, styles, available_width)
     if code:

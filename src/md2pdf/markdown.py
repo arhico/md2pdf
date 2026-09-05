@@ -212,10 +212,40 @@ def flush_paragraph(story: list, buffer: list[str], style: ParagraphStyle) -> No
     buffer.clear()
 
 
-def flush_bullets(story: list, bullets: list[str], styles: dict, available_width: float) -> None:
+# def flush_bullets(story: list, bullets: list[str], styles: dict, available_width: float) -> None:
+#     if not bullets:
+#         return
+#     for item in bullets:
+#         story.append(Paragraph(f"–&nbsp;&nbsp;{clean_inline(item)}", styles["list_body"]))
+#     story.append(Spacer(1, 0.5 * mm))
+#     bullets.clear()
+
+def flush_bullets(story, bullets, styles, available_width):
     if not bullets:
         return
-    for item in bullets:
-        story.append(Paragraph(f"–&nbsp;&nbsp;{clean_inline(item)}", styles["list_body"]))
-    story.append(Spacer(1, 0.5 * mm))
+
+    body_style = styles["body"]
+
+    for level, text in bullets:
+        # Two spaces represent one nesting level.
+        # Increase this value if you want wider indentation.
+        left_indent = 5 * mm + level * 7 * mm
+        bullet_indent = left_indent - 4 * mm
+
+        bullet_style = ParagraphStyle(
+            name=f"bullet-level-{level}",
+            parent=body_style,
+            leftIndent=left_indent,
+            firstLineIndent=0,
+            bulletIndent=bullet_indent,
+        )
+
+        story.append(
+            Paragraph(
+                text,
+                bullet_style,
+                bulletText="•",
+            )
+        )
+
     bullets.clear()

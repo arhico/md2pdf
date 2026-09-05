@@ -204,7 +204,7 @@ def main(**pdf_options: object) -> None:
 if __name__ == "__main__":
     main(
         font_size=12,
-        line_height=1.5,
+        line_height=1.3,
         diagram_max_height_mm=135,
-        margins_mm=(30, 10, 20, 20),
+        margins_mm=(15, 10, 20, 20),
     )
