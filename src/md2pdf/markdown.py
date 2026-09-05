@@ -224,7 +224,7 @@ def flush_bullets(story, bullets, styles, available_width):
     if not bullets:
         return
 
-    body_style = styles["body"]
+    body_style = styles["list_body"]
 
     for level, text in bullets:
         # Two spaces represent one nesting level.
@@ -242,7 +242,7 @@ def flush_bullets(story, bullets, styles, available_width):
 
         story.append(
             Paragraph(
-                text,
+                clean_inline(text),
                 bullet_style,
                 bulletText="•",
             )

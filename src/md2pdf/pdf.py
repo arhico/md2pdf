@@ -32,6 +32,7 @@ from .markdown import (
     flush_paragraph,
     is_table_divider,
     split_table_row,
+    clean_inline,
 )
 from .mermaid import render_mermaid_image
 
@@ -106,7 +107,7 @@ def flush_blockquote(story: list, blockquote: list[str], styles: dict, available
     text = " ".join(part.strip() for part in blockquote if part.strip())
     if text:
         block = Table(
-            [["", Paragraph(text, styles["blockquote"])]],
+            [["", Paragraph(clean_inline(text), styles["blockquote"])]],
             colWidths=[0.05 * PARAGRAPH_INDENT, available_width - 0.05 * PARAGRAPH_INDENT],
             hAlign="LEFT",
         )
@@ -137,7 +138,7 @@ def flush_ordered(
     if not ordered:
         return
 
-    list_indent = 12  # points added for every nesting level
+    list_indent = 10  # points added for every nesting level
 
     for level, number, delimiter, text in ordered:
         style = ParagraphStyle(
@@ -149,7 +150,7 @@ def flush_ordered(
 
         story.append(
             Paragraph(
-                f"{number}{delimiter} {text}",
+                f"{number}{delimiter} {clean_inline(text)}",
                 style,
             )
         )
