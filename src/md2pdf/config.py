@@ -82,22 +82,28 @@ FONT_CANDIDATES = {
         "regular": [
             # These should be tried first
             "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
+            "/usr/share/fonts/TTF/DejaVuSerif.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/TTF/DejaVuSans.ttf",
 
             # macOS/Linux Noto fonts
             "/Library/Fonts/NotoSerifArmenian-Regular.ttf",
             str(Path.home() / "Library/Fonts/NotoSerifArmenian-Regular.ttf"),
             "/usr/share/fonts/truetype/noto/NotoSerifArmenian-Regular.ttf",
             "/usr/share/fonts/opentype/noto/NotoSerifArmenian-Regular.ttf",
+            "/usr/share/fonts/noto/NotoSansArmenian-Regular.ttf",
         ],
         "bold": [
-            "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
+            "/usr/share/fonts/TTF/DejaVuSerif-Bold.ttf",
 
             "/Library/Fonts/NotoSerifArmenian-Bold.ttf",
             str(Path.home() / "Library/Fonts/NotoSerifArmenian-Bold.ttf"),
             "/usr/share/fonts/truetype/noto/NotoSerifArmenian-Bold.ttf",
             "/usr/share/fonts/opentype/noto/NotoSerifArmenian-Bold.ttf",
+            "/usr/share/fonts/noto/NotoSansArmenian-Bold.ttf",
         ],
         "names": ("GostUnicode", "GostUnicodeBold"),
     },
